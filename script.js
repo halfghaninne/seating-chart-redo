@@ -1,4 +1,5 @@
 import { fullClass as FULL_CLASS, disapprovedPairs as DISAPPROVED_PAIRS } from "./data.js";
+// add in your own private data.js file! you can follow/rename and repurpose the data-example.js file for the proper syntax.
 // expects associated data of shapes:
 // fullClass: [String]
 // disapprovedPairs: [[String]], where inner arrays are expected to be of length 2. 
