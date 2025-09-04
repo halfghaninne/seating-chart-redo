@@ -1,8 +1,15 @@
 import { fullClass as FULL_CLASS, disapprovedPairs as DISAPPROVED_PAIRS } from "./data.js";
 // expects associated data of shapes:
 // fullClass: [String]
-// disapprovedPairs: [[String]]
+// disapprovedPairs: [[String]], where inner arrays are expected to be of length 2. 
 
+// example data below can be uncommented (along with commenting _out_ the import statement above) to run the script directly:
+// const FULL_CLASS = ["Amethyst","Garnet","Pearl","Steven","Connie","Greg",
+//         "Peridot","Lapis","Jasper", "Lion", "Onion"];
+
+// const DISAPPROVED_PAIRS = [["Onion", "Lapis"],["Jasper", "Peridot"]];
+
+// grabs arguments k,v pairs from user command-line input
 function getArgs() {
   const args = process.argv.slice(2);
   let params = {};
@@ -15,6 +22,7 @@ function getArgs() {
   return params;
 }
 
+// performant shuffle
 function fisherYatesShuffle(arr) {
     for (let i= arr.length -1; i >= 1; i--) {
         const j = Math.floor(Math.random() * (i+1));
@@ -26,6 +34,7 @@ function fisherYatesShuffle(arr) {
 const ARGS = getArgs();
 let UNAPPROVED_MAP = {};
 
+// maps "bad matches" by user name, for quick look up
 function buildUnapprovedMap() {
     DISAPPROVED_PAIRS.forEach((pair) => {
         pair.forEach((student, i) => {
@@ -41,33 +50,14 @@ function buildUnapprovedMap() {
     })
 }
 
-function splitGroups(fullClass, num) {
+// splits up the class and creates groups,
+// if a bad match occurs, calls itself again
+function recursiveCheckAndSplit(fullClass, num, threshold) {
     let groups = [];
-    // const danglers = [];
-    // const checkCompleted = false;
-
-    // while groups is less than the desired length (total length % groups round up?) && some flag is false
-    // recursively run the check?
-        // console.log("before recursion, our shuffled class is: ", fullClass)
-    const threshold = Math.ceil(fullClass.length/num) // 3, number of groups we will have
-    // while groups is less than the desired length, recursively run the check
-    while (groups.length < threshold) {
-        console.log("outer while loop is firing");
-        groups = recursiveCheck(fullClass, groups, num, threshold)
-    }
-    
-    return groups
-}
-
-function recursiveCheck(fullClass, groups, num, threshold) {
-    console.log("at beginning of recursion, groups is: ", groups);
     for (let i= 0; i < fullClass.length; i += num) {
-        console.log("in inner loop index ", i, " groups is: ", groups)
         const chunk = fullClass.slice(i, i+num)
-        console.log("checking...", {chunk})
         const badMatch = checkGroup(chunk)
         if(badMatch !== null){
-            console.log("offender: ", badMatch)
             // find its index in the larger class arr
             const targetIndex = fullClass.indexOf(badMatch)
             // splice out the offender and...
@@ -82,17 +72,15 @@ function recursiveCheck(fullClass, groups, num, threshold) {
                 fullClass.splice(i+num+2, 0, removedStudentArr[0]) // so we offset index by 2 here
             }
             // and start over
-            //groups = []
-            recursiveCheck(fullClass, [], num, threshold) // <-- needing chunk to shift/increment is an indication we need to move more of the loop mechanism in here.
+            groups = recursiveCheckAndSplit(fullClass, num, threshold) 
         } else {
             groups.push(chunk)
         }
-        console.log("at end of inner loop index", i, "groups is: ", groups)
     }
-    console.log("at end of recursion, groups is: ", groups)
     return groups
 }
 
+// determines if a group containes a bad match
 function checkGroup(group) {
     let firstBadMatch = null;
 
@@ -100,9 +88,6 @@ function checkGroup(group) {
             if (group.includes(k)) {
                 v.forEach((student, i) => {
                     if (group.includes(student)) {
-                        //console.log({group, student})
-                        // firstBadMatchIndex = i
-                        // return firstBadMatchIndex
                         firstBadMatch = student
                     }
                 })
@@ -117,19 +102,11 @@ if (ARGS.number) {
     if (COUNT > FULL_CLASS.length) {
         console.warn("Please provide a number less than the full class size of", FULL_CLASS.length.toString());
     } else {
+        const threshold = Math.ceil(FULL_CLASS.length/COUNT) // total number of groups we will have
         buildUnapprovedMap();
-        // const shuffled = fisherYatesShuffle(FULL_CLASS);
-        // hard-coding to check
-        const shuffled = [
-            'Steven',  'Amethyst',
-            'Connie',  'Pearl',
-            'Garnet',  'Lion',
-            'Lapis',   'Greg',
-            'Jasper',  'Onion',
-            'Peridot'
-        ]
-        const groups = splitGroups(shuffled, COUNT);
-        console.log({groups})
+        const shuffled = fisherYatesShuffle(FULL_CLASS);
+        const groups = recursiveCheckAndSplit(shuffled, COUNT, threshold);
+        console.log("groups: ", groups.slice(0, threshold)) // TODO: figure out why the recursion is working such that this slice is necessary.
     }
 } else {
     console.warn("Please provide the number of students per group when calling the script, i.e. 'node script.js number=5'");
