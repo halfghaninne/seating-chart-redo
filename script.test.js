@@ -44,11 +44,10 @@ test('recursiveCheckAndSplit', async (t) => {
     assert.strictEqual(result[0][0], 'Big Bird');
     assert.strictEqual(result[2][1], 'Cookie Monster');
   });
-  // TODO: failing test
   await t.test('returns a groupings array of the correct length after it recurses', (t) => {
     const shuffledClass = ['Big Bird', 'Bert', 'Ernie', 'The Grouch', 'Count', 'Cookie Monster']
     const result = recursiveCheckAndSplit(shuffledClass, 2, 3, UNAPPROVED_MAP);
-    // console.log({result})
+    console.log({result})
     assert.strictEqual(result.length, 3);
   });
   // await t.test('', (t) => {

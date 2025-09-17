@@ -30,8 +30,8 @@ if (ARGS.number) {
         const UNAPPROVED_MAP = buildUnapprovedMap(DISAPPROVED_PAIRS);
         const shuffled = fisherYatesShuffle(FULL_CLASS);
         const groups = recursiveCheckAndSplit(shuffled, COUNT, threshold, UNAPPROVED_MAP);
-        console.log("groups: ", groups.slice(0, threshold)) // TODO: figure out why the recursion is working such that this slice is necessary.
+        console.log({groups}) 
     }
 } else {
-    console.warn("Please provide the number of students per group when calling the script, i.e. 'node script.js number=5'");
+      console.warn("Please provide the number of students per group when calling the script, i.e. 'node script.js number=5'");
 }

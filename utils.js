@@ -45,7 +45,6 @@ export function fisherYatesShuffle(arr) {
 // if a bad match occurs, calls itself again
 export function recursiveCheckAndSplit(fullClass, num, threshold, UNAPPROVED_MAP) {
     let groups = [];
-    console.log({UNAPPROVED_MAP})
     for (let i= 0; i < fullClass.length; i += num) {
         const chunk = fullClass.slice(i, i+num)
         const badMatch = checkGroup(chunk, UNAPPROVED_MAP)
@@ -64,7 +63,7 @@ export function recursiveCheckAndSplit(fullClass, num, threshold, UNAPPROVED_MAP
                 fullClass.splice(i+num+2, 0, removedStudentArr[0]) // so we offset index by 2 here
             }
             // and start over
-            groups = recursiveCheckAndSplit(fullClass, num, threshold, UNAPPROVED_MAP) 
+            return recursiveCheckAndSplit(fullClass, num, threshold, UNAPPROVED_MAP) 
         } else {
             groups.push(chunk)
         }
